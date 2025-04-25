@@ -2,19 +2,8 @@ services:
   - type: web
     name: vetscope
     env: python
-    buildCommand: |
-      set -e
-      pip install -r requirements.txt
-      mkdir -p /opt/render/project/src/models
-      gdown "https://drive.google.com/uc?id=1dh2J-arVsnBJA7xVRZP9r1e4x8qPUeAc" -O /opt/render/project/src/models/dog_disease_model_96.h5
-      [ -f "/opt/render/project/src/models/dog_disease_model_96.h5" ] || (echo "Failed to download model file" && exit 1)
-      echo "Model file downloaded successfully"
-      ls -lh /opt/render/project/src/models/
-    startCommand: |
-      set -e
-      [ -f "/opt/render/project/src/models/dog_disease_model_96.h5" ] || gdown "https://drive.google.com/uc?id=1dh2J-arVsnBJA7xVRZP9r1e4x8qPUeAc" -O /opt/render/project/src/models/dog_disease_model_96.h5
-      export PYTHONPATH=$PYTHONPATH:/opt/render/project/src
-      cd VetScope && gunicorn VetScope.app:app --bind 0.0.0.0:$PORT
+    buildCommand: chmod +x build.sh && ./build.sh
+    startCommand: chmod +x start.sh && ./start.sh
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
