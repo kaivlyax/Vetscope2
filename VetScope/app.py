@@ -8,6 +8,7 @@ from PIL import Image
 import os
 from dotenv import load_dotenv
 import time
+import gdown
 
 # Load environment variables from .env file
 load_dotenv()
@@ -31,64 +32,34 @@ tf.get_logger().setLevel('ERROR')
 
 def load_model_safely():
     global model
-    max_retries = 3
-    retry_delay = 2  # seconds
-    
-    for attempt in range(max_retries):
-        try:
-            # Convert relative path to absolute path
-            abs_model_path = os.path.abspath(MODEL_PATH)
-            print(f"Attempt {attempt + 1}/{max_retries} to load model")
-            print(f"Environment MODEL_PATH: {MODEL_PATH}")
-            print(f"Absolute model path: {abs_model_path}")
-            print(f"Current working directory: {os.getcwd()}")
-            
-            # Check if directory exists
-            model_dir = os.path.dirname(abs_model_path)
-            if not os.path.exists(model_dir):
-                print(f"Creating directory: {model_dir}")
-                os.makedirs(model_dir, exist_ok=True)
-            
-            print(f"Directory contents: {os.listdir(model_dir)}")
-            
-            if os.path.exists(abs_model_path):
-                file_size = os.path.getsize(abs_model_path)
-                print(f"Model file exists at {abs_model_path}")
-                print(f"File size: {file_size} bytes")
-                
-                # Basic integrity check
-                if file_size < 1000:  # Assuming model should be at least 1KB
-                    print(f"Warning: Model file size ({file_size} bytes) seems too small")
-                    if attempt < max_retries - 1:
-                        print(f"Retrying in {retry_delay} seconds...")
-                        time.sleep(retry_delay)
-                        continue
-                    return False
-                
-                model = tf.keras.models.load_model(abs_model_path)
-                print(f"Model loaded successfully from {abs_model_path}")
-                return True
-            else:
-                print(f"Model file not found at {abs_model_path}")
-                print(f"Directory contents: {os.listdir(model_dir)}")
-                if attempt < max_retries - 1:
-                    print(f"Retrying in {retry_delay} seconds...")
-                    time.sleep(retry_delay)
-                    continue
-                return False
-        except Exception as e:
-            print(f"Error loading model (attempt {attempt + 1}): {str(e)}")
-            print(f"Model path: {MODEL_PATH}")
-            print(f"Absolute path: {abs_model_path}")
-            print(f"Current working directory: {os.getcwd()}")
-            print(f"Directory contents: {os.listdir(os.path.dirname(abs_model_path))}")
-            if attempt < max_retries - 1:
-                print(f"Retrying in {retry_delay} seconds...")
-                time.sleep(retry_delay)
-                continue
+    try:
+        # Try to load the model from the local directory
+        model_path = os.path.join(os.path.dirname(__file__), 'models', 'dog_disease_model_96.h5')
+        if os.path.exists(model_path):
+            model = tf.keras.models.load_model(model_path)
+            print(f"Model loaded successfully from {model_path}")
+            return True
+        
+        # If model not found locally, try to download it
+        print("Model not found locally, attempting to download...")
+        os.makedirs(os.path.dirname(model_path), exist_ok=True)
+        gdown.download(
+            "https://drive.google.com/uc?id=1dh2J-arVsnBJA7xVRZP9r1e4x8qPUeAc",
+            model_path,
+            quiet=False
+        )
+        
+        if os.path.exists(model_path):
+            model = tf.keras.models.load_model(model_path)
+            print(f"Model downloaded and loaded successfully from {model_path}")
+            return True
+        else:
+            print("Failed to download model")
             return False
-    
-    return False
+            
+    except Exception as e:
+        print(f"Error loading model: {str(e)}")
+        return False
 
 # Try to load the model
 model_loaded = load_model_safely()

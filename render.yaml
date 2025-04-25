@@ -3,7 +3,7 @@ services:
     name: vetscope
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: cd VetScope && gunicorn VetScope.app:app --bind 0.0.0.0:$PORT
+    startCommand: cd VetScope && gunicorn app:app --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
@@ -12,9 +12,7 @@ services:
       - key: SECRET_KEY
         sync: false
       - key: MODEL_PATH
-        value: /opt/render/project/src/models/dog_disease_model_96.h5
-      - key: PYTHONPATH
-        value: /opt/render/project/src
+        value: models/dog_disease_model_96.h5
     disk:
       name: model-storage
       mountPath: /opt/render/project/src/models
