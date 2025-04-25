@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}VetScope - AI-Powered Dog Disease Detection{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center py-5">
+    <h1 class="display-4 mb-4">Paw Diagnosis</h1>
+    <p class="lead mb-4">Snap a pic of your pup, and we'll do the rest!</p>
+    {% if not current_user.is_authenticated %}
+    <div class="cta-buttons">
+        <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg me-3">Get Started</a>
+        <a href="{{ url_for('signup') }}" class="btn btn-outline-primary btn-lg">Sign Up</a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="features-section py-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-microscope fa-3x mb-3 text-primary"></i>
+                    <h3 class="card-title">Accurate Detection</h3>
+                    <p class="card-text">Our AI-powered system provides accurate disease detection for your pets.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-heartbeat fa-3x mb-3 text-primary"></i>
+                    <h3 class="card-title">Instant Results</h3>
+                    <p class="card-text">Get immediate insights about your dog's health condition.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-notes-medical fa-3x mb-3 text-primary"></i>
+                    <h3 class="card-title">Expert Tips</h3>
+                    <p class="card-text">Receive professional care recommendations and treatment tips.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="how-it-works py-5">
+    <h2 class="text-center mb-5">How It Works</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="step text-center">
+                <div class="step-number">1</div>
+                <h4>Upload Photo</h4>
+                <p>Take a clear photo of your dog's affected area</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="step text-center">
+                <div class="step-number">2</div>
+                <h4>AI Analysis</h4>
+                <p>Our AI model analyzes the image for potential diseases</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="step text-center">
+                <div class="step-number">3</div>
+                <h4>Get Results</h4>
+                <p>Receive detailed results and care recommendations</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="faq-section py-5">
+    <h2 class="text-center mb-5">Frequently Asked Questions</h2>
+    <div class="accordion" id="faqAccordion">
+        <div class="accordion-item">
+            <h3 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                    How does this work?
+                </button>
+            </h3>
+            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Our system uses advanced AI technology to analyze images of your dog and identify potential health issues. Simply upload a clear photo, and our model will provide you with results and recommendations.
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h3 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                    Is it accurate?
+                </button>
+            </h3>
+            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    While our AI model is highly accurate, it should not replace professional veterinary care. Use our service as a preliminary screening tool and always consult with a veterinarian for proper diagnosis and treatment.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

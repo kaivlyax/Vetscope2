@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - VetScope{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1 class="text-center mb-4">Welcome, {{ current_user.name }}!</h1>
+    
+    {% if not model_available %}
+    <div class="alert alert-warning text-center" role="alert">
+        <h4 class="alert-heading">Service Temporarily Unavailable</h4>
+        <p>Our AI model is currently undergoing maintenance. Please try again later.</p>
+        <p>We apologize for any inconvenience.</p>
+    </div>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="upload-section card">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Upload Image</h2>
+                    <form id="uploadForm" class="text-center">
+                        <div class="upload-area mb-4" id="dropZone">
+                            <input type="file" id="imageInput" class="d-none" accept="image/*" {% if not model_available %}disabled{% endif %}>
+                            <div class="upload-placeholder">
+                                <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                                <p>Drag and drop your image here or</p>
+                                <button type="button" class="btn btn-primary" onclick="document.getElementById('imageInput').click()" {% if not model_available %}disabled{% endif %}>
+                                    Choose File
+                                </button>
+                            </div>
+                            <div id="preview" class="mt-3 d-none">
+                                <img id="imagePreview" class="img-fluid rounded" alt="Preview">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg" {% if not model_available %}disabled{% endif %}>Analyze Image</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="results-section mt-5 d-none" id="resultsSection">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Analysis Results</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="diagnosis-info">
+                            <h3>Diagnosis</h3>
+                            <p class="disease-name h4 text-primary" id="diseaseName"></p>
+                            <div class="confidence-meter mt-3">
+                                <label>Confidence Level:</label>
+                                <div class="progress">
+                                    <div class="progress-bar" id="confidenceBar" role="progressbar"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="symptoms-info">
+                            <h3>Symptoms</h3>
+                            <p id="symptoms"></p>
+                            <h3 class="mt-4">Care Tips</h3>
+                            <ul id="careTips" class="list-group list-group-flush">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropZone = document.getElementById('dropZone');
+    const imageInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+    const imagePreview = document.getElementById('imagePreview');
+    const uploadForm = document.getElementById('uploadForm');
+    const resultsSection = document.getElementById('resultsSection');
+
+    {% if model_available %}
+    // Drag and drop handlers
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            handleImageFile(file);
+        }
+    });
+
+    imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            handleImageFile(file);
+        }
+    });
+
+    function handleImageFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            imagePreview.src = e.target.result;
+            preview.classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    uploadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const file = imageInput.files[0];
+        if (!file) {
+            alert('Please select an image first');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            if (data.error) {
+                if (data.status === 'maintenance') {
+                    location.reload();
+                    return;
+                }
+                alert(data.error);
+                return;
+            }
+
+            // Display results
+            document.getElementById('diseaseName').textContent = data.disease;
+            document.getElementById('confidenceBar').style.width = `${data.confidence * 100}%`;
+            document.getElementById('confidenceBar').textContent = `${Math.round(data.confidence * 100)}%`;
+            document.getElementById('symptoms').textContent = data.symptoms;
+            
+            const tipsList = document.getElementById('careTips');
+            tipsList.innerHTML = '';
+            data.tips.forEach(tip => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.textContent = tip;
+                tipsList.appendChild(li);
+            });
+
+            resultsSection.classList.remove('d-none');
+        } catch (error) {
+            alert('An error occurred while analyzing the image');
+            console.error(error);
+        }
+    });
+    {% endif %}
+});
+</script>
+{% endblock %} 
