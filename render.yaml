@@ -3,6 +3,7 @@ services:
     name: vetscope
     env: python
     buildCommand: |
+      #!/bin/bash
       pip install -r requirements.txt
       mkdir -p /opt/render/project/src/models
       # Download model file using gdown
@@ -16,6 +17,7 @@ services:
         exit 1
       fi
     startCommand: |
+      #!/bin/bash
       # Verify model exists before starting
       if [ ! -f "/opt/render/project/src/models/dog_disease_model_96.h5" ]; then
         echo "Model file not found, attempting to download..."
