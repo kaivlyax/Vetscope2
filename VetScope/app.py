@@ -24,7 +24,7 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
 # Load the model if available
-MODEL_PATH = os.getenv('MODEL_PATH', '/opt/render/project/src/models/dog_disease_model_96.h5')
+MODEL_PATH = os.getenv('MODEL_PATH', 'models/dog_disease_model_96.h5')
 model = None
 
 # Suppress TensorFlow warnings
@@ -34,7 +34,7 @@ def load_model_safely():
     global model
     try:
         # Try to load the model from the local directory
-        model_path = os.path.join(os.path.dirname(__file__), 'models', 'dog_disease_model_96.h5')
+        model_path = os.path.join(os.path.dirname(__file__), MODEL_PATH)
         if os.path.exists(model_path):
             model = tf.keras.models.load_model(model_path)
             print(f"Model loaded successfully from {model_path}")
