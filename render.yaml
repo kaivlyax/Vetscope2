@@ -21,7 +21,7 @@ services:
         echo "Model file not found, attempting to download..."
         gdown "https://drive.google.com/uc?id=1dh2J-arVsnBJA7xVRZP9r1e4x8qPUeAc" -O /opt/render/project/src/models/dog_disease_model_96.h5
       fi
-      cd /opt/render/project/src && PYTHONPATH=/opt/render/project/src gunicorn VetScope.app:app --bind 0.0.0.0:$PORT
+      cd /opt/render/project/src && export PYTHONPATH=/opt/render/project/src:$PYTHONPATH && gunicorn VetScope.app:app --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
